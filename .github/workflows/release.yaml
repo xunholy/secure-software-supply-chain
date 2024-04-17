@@ -49,4 +49,10 @@ jobs:
       - name: Verify Attestations
         run: |
           echo "Checking Attestations"
-          cosign verify-attestation push ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }}
+          cosign verify-attestation push ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }} \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            --certificate-identity https://github.com/xUnholy/secure-software-supply-chain-demo/.github/workflows/build.yaml@refs/heads/main
+
+      # Cosign the OCI artifact
+      - name: Sign the OCI artifact [PROD]
+        run: cosign sign ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }} -y

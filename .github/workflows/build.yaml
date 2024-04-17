@@ -80,5 +80,5 @@ jobs:
         run: cosign attest --predicate predecates/lint.json ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }} -y
 
       # Cosign the OCI artifact
-      - name: Sign the OCI artifact
+      - name: Sign the OCI artifact [NOTPROD]
         run: cosign sign ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }} -y
