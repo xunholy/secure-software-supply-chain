@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-    GHCR_REPO: "ghcr.io/xunholy/examples/${{ github.event.repository.name }}"
+    GHCR_REPO: "ghcr.io/xunholy/${{ github.event.repository.name }}"
 
 jobs:
   build:
