@@ -22,7 +22,7 @@ jobs:
       - uses: sigstore/cosign-installer@main
 
       - name: Install Task
-        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d
+        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
 
       - name: Get Metadata
         id: info
