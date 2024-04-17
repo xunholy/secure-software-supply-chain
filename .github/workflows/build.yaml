@@ -62,11 +62,15 @@ jobs:
           tags: |
             ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }}
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v2
+      - uses: actions/setup-go@v5
         with:
-          # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
-          version: v1.29
+          go-version: '1.22'
+          cache: false
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v4
+        with:
+          version: latest
 
       # Cosign the OCI artifact
       - name: Sign the OCI artifact
