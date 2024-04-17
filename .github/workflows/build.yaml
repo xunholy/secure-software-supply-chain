@@ -55,7 +55,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/xunholy/${{ github.event.repository.name }}:${{ github.sha }}
+            ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }}
 
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v2
