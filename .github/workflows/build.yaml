@@ -8,9 +8,14 @@ on:
 env:
     GHCR_REPO: "ghcr.io/xunholy/${{ github.event.repository.name }}"
 
+permissions: write-all
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      COSIGN_EXPERIMENTAL: "true"
+      COSIGN_YES: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
