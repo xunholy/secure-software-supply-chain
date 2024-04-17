@@ -11,9 +11,19 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: production
+    env:
+      COSIGN_EXPERIMENTAL: "true"
+      COSIGN_YES: "true"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      # Install Cosign
+      - uses: sigstore/cosign-installer@main
+
+      # Install Crane
+      - uses: imjasonh/setup-crane@v0.3
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -24,4 +34,17 @@ jobs:
 
       - name: Promote Artifact
         run: |
-          echo "Something happening"
+          docker pull ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }}
+          docker tag ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }} ghcr.io/xunholy/${{ github.event.repository.name }}/example:prod-${{ github.sha }}
+          docker push ghcr.io/xunholy/${{ github.event.repository.name }}/example:prod-${{ github.sha }}
+
+      - name: Get the digest of the OCI artifact
+        id: crane
+        run: |
+          DIGEST=$(crane digest ghcr.io/xunholy/${{ github.event.repository.name }}/example:prod-${{ github.sha }})
+          echo "DIGEST=$DIGEST" >> $GITHUB_OUTPUT
+
+      - name: Verify Attestations
+        run: |
+          echo "Checking Attestations"
+          cosign verify-attestation push ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }}
