@@ -72,7 +72,7 @@ jobs:
       - name: Get the digest of the OCI artifact
         id: crane
         run: |
-          DIGEST=$(crane digest ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }}
+          DIGEST=$(crane digest ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }})
           echo "DIGEST=$DIGEST" >> $GITHUB_OUTPUT
 
       # Cosign the OCI artifact
