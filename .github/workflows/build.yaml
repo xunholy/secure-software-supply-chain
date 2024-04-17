@@ -21,6 +21,12 @@ jobs:
       # Install Cosign
       - uses: sigstore/cosign-installer@main
 
+      - name: Install Task
+        uses: arduino/setup-task@v1
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Get Metadata
         id: info
         run: |
