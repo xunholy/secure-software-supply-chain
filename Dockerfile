@@ -18,9 +18,12 @@ ENV GO111MODULE=on \
   GOARCH=${TARGETARCH} \
   GOARM=${TARGETVARIANT}
 
-WORKDIR /go/src/github.com/anz-ecp/michael-fornaro/
+WORKDIR /go/src/github.com/xunholy/secure-software-supply-chain-demo/
 
-COPY go.mod go.sum ./
+# Disabled due to no modules
+# COPY go.mod go.sum ./
+
+COPY go.mod ./
 
 RUN go mod download
 
