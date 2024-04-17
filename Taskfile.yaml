@@ -19,9 +19,9 @@ env:
     sh: echo "--build-arg VERSION=${VERSION} --build-arg SHA=${SHA} --build-arg PORT=${PORT} --build-arg LOG_INFO=${LOG_INFO}"
 
 tasks:
-  setup:
-    cmds:
-      - if [ "${IMG_RESULT}" = "load" ]; then export PUSH_ARG="--load"; export PLATFORMS="local"; elif [ "${IMG_RESULT}" = "cache" ]; then : ; else export PUSH_ARG="--push"; fi
+  # setup:
+  #   cmds:
+  #     - if [ "${IMG_RESULT}" = "load" ]; then export PUSH_ARG="--load"; export PLATFORMS="local"; elif [ "${IMG_RESULT}" = "cache" ]; then : ; else export PUSH_ARG="--push"; fi
 
   docker_buildx:
     deps: [setup]
