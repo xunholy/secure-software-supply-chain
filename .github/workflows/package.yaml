@@ -15,7 +15,7 @@ permissions:
   packages: write
 
 jobs:
-  build:
+  package:
     runs-on: ubuntu-latest
     env:
       REGISTRY: ghcr.io
@@ -67,7 +67,7 @@ jobs:
           output-file: 'image.sbom.spdx.json'
 
       - name: Display Image SBOM
-        run: cat source.sbom.spdx.json
+        run: cat image.sbom.spdx.json
 
       - uses: actions/attest-sbom@v1
         with:

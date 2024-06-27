@@ -31,9 +31,11 @@ jobs:
           cache: false
 
       - name: Install dependencies
+        working-directory: src
         run: go mod tidy
 
       - name: Run tests
+        working-directory: src
         run: go test -v ./...
 
       - uses: anchore/sbom-action@v0
@@ -46,20 +48,21 @@ jobs:
         run: cat source.sbom.spdx.json
 
       - name: Build application
+        working-directory: src
         run: go build -v -o example ./...
 
       - uses: actions/attest-sbom@v1
         with:
-          subject-path: 'example'
+          subject-path: './src/example'
           sbom-path: 'package.sbom.spdx.json'
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1
         with:
-          subject-path: 'example'
+          subject-path: './src/example'
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: example
-          path: example
+          name: ./src/example
+          path: ./src/example
