@@ -43,6 +43,7 @@ jobs:
           path: ./src/
           format: 'spdx-json'
           output-file: 'source.sbom.spdx.json'
+          artifact-name: 'source.sbom.spdx.json'
 
       - name: Display Source SBOM
         run: cat source.sbom.spdx.json
@@ -55,6 +56,18 @@ jobs:
         with:
           subject-path: './src/example'
           sbom-path: 'source.sbom.spdx.json'
+
+      - uses: anchore/sbom-action@v0
+        with:
+          path: ./src/example
+          format: 'spdx-json'
+          output-file: 'package.sbom.spdx.json'
+          artifact-name: 'package.sbom.spdx.json'
+
+      - uses: actions/attest-sbom@v1
+        with:
+          subject-path: './src/example'
+          sbom-path: 'package.sbom.spdx.json'
 
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v1

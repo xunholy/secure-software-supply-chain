@@ -65,6 +65,7 @@ jobs:
           image: ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
           format: 'spdx-json'
           output-file: 'image.sbom.spdx.json'
+          artifact-name: 'image.sbom.spdx.json'
 
       - name: Display Image SBOM
         run: cat image.sbom.spdx.json
