@@ -28,12 +28,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
 
-      - uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5
+      - name: Install Go
+        uses: actions/setup-go@cdcb36043654635271a94b9a6d1392de5bb323a7 # v5
         with:
           go-version: '1.22'
           cache: false
 
-      - name: Install dependencies
+      - name: Install Go Modules
         working-directory: src
         run: go mod tidy
 
@@ -41,7 +42,8 @@ jobs:
         working-directory: src
         run: go test -v ./...
 
-      - uses: anchore/sbom-action@e8d2a6937ecead383dfe75190d104edd1f9c5751 # v0
+      - name: Generate Source SBOM
+        uses: anchore/sbom-action@e8d2a6937ecead383dfe75190d104edd1f9c5751 # v0
         with:
           path: ./src/
           format: 'spdx-json'
@@ -52,21 +54,25 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           output-format: table
+          fail-build: true
+          severity-cutoff: critical
           sbom: "source.sbom.spdx.json"
 
       - name: Display Source SBOM
         run: cat source.sbom.spdx.json
 
-      - name: Build application
-        working-directory: src
-        run: go build -v -o example ./...
-
-      - uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
+      - name: Generate Source SBOM Attestation
+        uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
         with:
           subject-path: './src/example'
           sbom-path: 'source.sbom.spdx.json'
 
-      - uses: anchore/sbom-action@e8d2a6937ecead383dfe75190d104edd1f9c5751 # v0
+      - name: Build Package Binary
+        working-directory: src
+        run: go build -v -o example ./...
+
+      - name: Generate Package SBOM
+        uses: anchore/sbom-action@e8d2a6937ecead383dfe75190d104edd1f9c5751 # v0
         with:
           file: ./src/example
           format: 'spdx-json'
@@ -77,19 +83,30 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           output-format: table
+          fail-build: true
+          severity-cutoff: critical
           sbom: "package.sbom.spdx.json"
 
-      - uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
+      - name: Display Package SBOM
+        run: cat package.sbom.spdx.json
+
+      - name: Generate Package SBOM Attestation
+        uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
         with:
           subject-path: './src/example'
           sbom-path: 'package.sbom.spdx.json'
 
-      - name: Generate artifact attestation
+      - name: Generate Package Binary Attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1
         with:
           subject-path: './src/example'
 
-      - name: Upload build artifact
+      - name: Verify Package Attestations
+        run: gh attestation verify oci://${{ env.REGISTRY }}/${{ github.repository }}/example:${{ steps.build-image.outputs.digest }} -R ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Package Artifact
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # v4
         with:
           name: example
@@ -140,7 +157,8 @@ jobs:
             ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
             ${{ env.REGISTRY }}/${{ github.repository }}/example:latest
 
-      - uses: anchore/sbom-action@e8d2a6937ecead383dfe75190d104edd1f9c5751 # v0
+      - name: Generate Image SBOM
+        uses: anchore/sbom-action@e8d2a6937ecead383dfe75190d104edd1f9c5751 # v0
         with:
           image: ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
           format: 'spdx-json'
@@ -151,21 +169,29 @@ jobs:
         uses: anchore/scan-action@v3
         with:
           output-format: table
+          fail-build: true
+          severity-cutoff: critical
           sbom: "image.sbom.spdx.json"
 
       - name: Display Image SBOM
         run: cat image.sbom.spdx.json
 
-      - uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
+      - name: Generate Image SBOM Attestation
+        uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository }}/example
           subject-digest: ${{ steps.build-image.outputs.digest }}
           sbom-path: 'image.sbom.spdx.json'
           push-to-registry: true
 
-      - name: Generate artifact attestation
+      - name: Generate Image Attestation
         uses: actions/attest-build-provenance@bdd51370e0416ac948727f861e03c2f05d32d78e # v1
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository }}/example
           subject-digest:  ${{ steps.build-image.outputs.digest }}
           push-to-registry: true
+
+      - name: Verify Image Attestations
+        run: gh attestation verify oci://${{ env.REGISTRY }}/${{ github.repository }}/example:${{ steps.build-image.outputs.digest }} -R ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
