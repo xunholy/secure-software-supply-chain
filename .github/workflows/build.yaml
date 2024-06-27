@@ -151,7 +151,8 @@ jobs:
           context: ./src
           file: Dockerfile
           platforms: linux/amd64
-          attests: type=sbom,generator=image
+          # TODO: Failing with AuthN
+          # attests: type=sbom,generator=image
           provenance: true
           push: true
           tags: |
