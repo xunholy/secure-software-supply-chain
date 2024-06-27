@@ -59,7 +59,7 @@ jobs:
 
       - uses: anchore/sbom-action@v0
         with:
-          path: ./src/example
+          file: ./src/example
           format: 'spdx-json'
           output-file: 'package.sbom.spdx.json'
           artifact-name: 'package.sbom.spdx.json'
