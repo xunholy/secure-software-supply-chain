@@ -48,5 +48,5 @@ tasks:
 
   info:
     cmds:
-      - echo ::set-output name=version::{{.VERSION}}
-      - echo ::set-output name=tag::{{.TAG}}
+      - echo version={{.VERSION}} >> GITHUB_OUTPUT
+      - echo tag={{.TAG}} >> GITHUB_OUTPUT

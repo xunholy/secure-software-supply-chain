@@ -12,6 +12,7 @@ permissions:
   id-token: write
   attestations: write
   contents: read
+  packages: write
 
 jobs:
   build:
@@ -37,6 +38,11 @@ jobs:
       #   with:
       #     subject-path: 'bin/my-artifact.tar.gz'
       #     sbom-path: 'sbom.spdx.json'
+
+      # - name: Generate artifact attestation
+      #   uses: actions/attest-build-provenance@v1
+      #   with:
+      #     subject-path: 'PATH/TO/ARTIFACT'
 
       - name: Display Source SBOM
         run: cat source.sbom.spdx.json
@@ -67,10 +73,11 @@ jobs:
             SHA=${{ github.sha }}
           context: ./src
           file: Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ github.repository }}/example:latest
 
       - uses: anchore/sbom-action@v0
         with:
@@ -83,4 +90,11 @@ jobs:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
           subject-digest: ${{ steps.build-image.outputs.digest }}
           sbom-path: 'image.sbom.spdx.json'
+          push-to-registry: true
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
+          subject-digest:  ${{ steps.build-image.outputs.digest }}
           push-to-registry: true
