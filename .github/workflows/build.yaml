@@ -64,5 +64,5 @@ jobs:
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
-          name: ./src/example
-          path: ./src/example
+          name: example
+          path: ./src
