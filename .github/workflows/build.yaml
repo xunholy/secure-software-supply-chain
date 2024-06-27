@@ -61,15 +61,15 @@ jobs:
       - name: Display Source SBOM
         run: cat source.sbom.spdx.json
 
+      - name: Build Package Binary
+        working-directory: src
+        run: go build -v -o example ./...
+
       - name: Generate Source SBOM Attestation
         uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
         with:
           subject-path: './src/example'
           sbom-path: 'source.sbom.spdx.json'
-
-      - name: Build Package Binary
-        working-directory: src
-        run: go build -v -o example ./...
 
       - name: Generate Package SBOM
         uses: anchore/sbom-action@e8d2a6937ecead383dfe75190d104edd1f9c5751 # v0
