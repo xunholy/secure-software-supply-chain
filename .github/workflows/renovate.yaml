@@ -57,7 +57,7 @@ jobs:
           app-id: "${{ secrets.BOT_APP_ID }}"
           private-key: "${{ secrets.BOT_APP_PRIVATE_KEY  }}"
 
-      - run: echo ${{ steps.app-auth.outputs.app-slug }}
+      - run: echo ${{ steps.app-token.outputs.app-slug }}
 
       - name: Renovate
         uses: renovatebot/github-action@21d88b0bf0183abcee15f990011cca090dfc47dd # v40.1.12
