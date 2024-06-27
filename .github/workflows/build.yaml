@@ -15,7 +15,7 @@ on:
 permissions:
   id-token: write
   attestations: write
-  contents: read
+  contents: write
   packages: write
 
 env:
@@ -48,6 +48,12 @@ jobs:
           output-file: 'source.sbom.spdx.json'
           artifact-name: 'source.sbom.spdx.json'
 
+      - name: Scan Source SBOM
+        uses: anchore/scan-action@v3
+        with:
+          output-format: table
+          sbom: "source.sbom.spdx.json"
+
       - name: Display Source SBOM
         run: cat source.sbom.spdx.json
 
@@ -66,6 +72,12 @@ jobs:
           format: 'spdx-json'
           output-file: 'package.sbom.spdx.json'
           artifact-name: 'package.sbom.spdx.json'
+
+      - name: Scan Package SBOM
+        uses: anchore/scan-action@v3
+        with:
+          output-format: table
+          sbom: "package.sbom.spdx.json"
 
       - uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
         with:
@@ -121,6 +133,8 @@ jobs:
           context: ./src
           file: Dockerfile
           platforms: linux/amd64
+          attests: type=sbom,generator=image
+          provenance: true
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
@@ -132,6 +146,12 @@ jobs:
           format: 'spdx-json'
           output-file: 'image.sbom.spdx.json'
           artifact-name: 'image.sbom.spdx.json'
+
+      - name: Scan Image SBOM
+        uses: anchore/scan-action@v3
+        with:
+          output-format: table
+          sbom: "image.sbom.spdx.json"
 
       - name: Display Image SBOM
         run: cat image.sbom.spdx.json
