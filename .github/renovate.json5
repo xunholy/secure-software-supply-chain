@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:enableMajor",
+    "replacements:k8s-registry-move",
+    ":automergeBranch",
+    ":disableRateLimiting",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":automergeDigest",
+    ":timezone(Australia/Melbourne)",
+    "helpers:pinGitHubActionDigests",
+    "security:openssf-scorecard"
+  ],
+  "dependencyDashboardTitle": "Renovate Dashboard 🤖",
+  "dependencyDashboardAutoclose": true,
+  "configWarningReuseIssue": true,
+  "suppressNotifications": ["prEditedNotification", "prIgnoreNotification"],
+  "platformAutomerge": true,
+  "pre-commit": {
+    "enabled": true
+  },
+}
