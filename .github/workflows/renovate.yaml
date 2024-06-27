@@ -50,12 +50,13 @@ jobs:
       - name: Validate Renovate Configuration
         uses: suzuki-shunsuke/github-action-renovate-config-validator@b54483862375f51910a60c4f498e927d4f3df466 # v1.0.1
 
-      - name: Generate Token
-        uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v1
         id: app-token
         with:
           app-id: "${{ secrets.BOT_APP_ID }}"
-          private-key: "${{ secrets.BOT_APP_PRIVATE_KEY }}"
+          private-key: "${{ secrets.BOT_APP_ID }}"
+
+      - run: echo ${{ steps.app-auth.outputs.app-slug }}
 
       - name: Renovate
         uses: renovatebot/github-action@f9c81dddc9b589e4e6ae0326d1e36f6bc415d230 # v39.2.4
