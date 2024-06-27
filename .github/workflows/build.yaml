@@ -7,6 +7,10 @@ on:
     branches:
       - master
       - main
+    paths:
+      - .github/workflows/build.yaml
+      - ./src/
+      - Dockerfile
 
 permissions:
   id-token: write
