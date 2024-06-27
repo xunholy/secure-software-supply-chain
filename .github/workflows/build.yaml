@@ -1,3 +1,5 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: build
 
 on:
@@ -15,54 +17,43 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
+      REGISTRY: ghcr.io
       COSIGN_EXPERIMENTAL: "true"
       COSIGN_YES: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
-      # Install Crane
-      - uses: imjasonh/setup-crane@v0.3
-
-      # Install Cosign
-      - uses: sigstore/cosign-installer@main
-
-      - name: Install Task
-        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b ~/.local/bin
-
-      - name: Get Metadata
-        id: info
-        run: |
-          task info
+        uses: actions/checkout@v4
 
       - uses: anchore/sbom-action@v0
         with:
-          path: ./build/
+          path: ./src/
           format: 'spdx-json'
-          output-file: 'sbom.spdx.json'
+          output-file: 'source.sbom.spdx.json'
 
-      - uses: actions/attest-sbom@v1
-        with:
-          subject-path: 'bin/my-artifact.tar.gz'
-          sbom-path: 'sbom.spdx.json'
+      # - uses: actions/attest-sbom@v1
+      #   with:
+      #     subject-path: 'bin/my-artifact.tar.gz'
+      #     sbom-path: 'sbom.spdx.json'
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Source SBOM
+        run: |
+          cat source.sbom.spdx.json
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Collect Metadata
+        id: info
+        run: |
+          task info
+
       - name: Build and Push
-        if: github.ref != 'refs/heads/master'
         uses: docker/build-push-action@v2
+        id: build-image
         with:
           build-args: |
             VERSION=${{ steps.info.outputs.version }}
@@ -72,28 +63,17 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
 
-      - uses: actions/setup-go@v5
+      - uses: anchore/sbom-action@v0
         with:
-          go-version: '1.22'
-          cache: false
+          image: ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
+          format: 'spdx-json'
+          output-file: 'image.sbom.spdx.json'
 
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v4
+      - uses: actions/attest-sbom@v1
         with:
-          version: latest
-
-      - name: Get the digest of the OCI artifact
-        id: crane
-        run: |
-          DIGEST=$(crane digest ghcr.io/xunholy/${{ github.event.repository.name }}/example:${{ github.sha }})
-          echo "DIGEST=$DIGEST" >> $GITHUB_OUTPUT
-
-      # Cosign the OCI artifact
-      - name: Sign the OCI artifact
-        run: cosign attest --predicate predecates/lint.json ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }} -y
-
-      # Cosign the OCI artifact
-      - name: Sign the OCI artifact [NOTPROD]
-        run: cosign sign ghcr.io/xunholy/${{ github.event.repository.name }}/example@${{ steps.crane.outputs.DIGEST }} -y
+          subject-name: ${{ env.REGISTRY }}/${{ github.repository }}/example:${{ github.sha }}
+          subject-digest: ${{ steps.build-image.outputs.digest }}
+          sbom-path: 'image.sbom.spdx.json'
+          push-to-registry: true

@@ -1,3 +1,5 @@
+---
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
 name: release
 
 on:
@@ -22,7 +24,7 @@ jobs:
       COSIGN_YES: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Install Cosign
       - uses: sigstore/cosign-installer@main
