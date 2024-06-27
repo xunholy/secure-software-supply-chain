@@ -8,7 +8,10 @@ on:
       - master
       - main
 
-permissions: write-all
+permissions:
+  id-token: write
+  attestations: write
+  contents: read
 
 jobs:
   release:

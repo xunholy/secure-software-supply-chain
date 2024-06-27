@@ -3,9 +3,13 @@ name: build
 on:
   push:
     branches:
+      - master
       - main
 
-permissions: write-all
+permissions:
+  id-token: write
+  attestations: write
+  contents: read
 
 jobs:
   build:
@@ -31,6 +35,17 @@ jobs:
         run: |
           task info
 
+      - uses: anchore/sbom-action@v0
+        with:
+          path: ./build/
+          format: 'spdx-json'
+          output-file: 'sbom.spdx.json'
+
+      - uses: actions/attest-sbom@v1
+        with:
+          subject-path: 'bin/my-artifact.tar.gz'
+          sbom-path: 'sbom.spdx.json'
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -52,7 +67,7 @@ jobs:
           build-args: |
             VERSION=${{ steps.info.outputs.version }}
             SHA=${{ github.sha }}
-          context: .
+          context: ./src
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
