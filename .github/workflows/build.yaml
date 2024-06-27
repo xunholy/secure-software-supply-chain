@@ -194,6 +194,6 @@ jobs:
           push-to-registry: true
 
       - name: Verify Image Attestations
-        run: gh attestation verify oci://${{ env.REGISTRY }}/${{ github.repository }}/example:${{ steps.build-image.outputs.digest }} -R ${{ github.repository }}
+        run: gh attestation verify oci://${{ env.REGISTRY }}/${{ github.repository }}/example@${{ steps.build-image.outputs.digest }} -R ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
