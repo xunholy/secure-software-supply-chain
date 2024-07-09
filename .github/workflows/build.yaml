@@ -66,7 +66,7 @@ jobs:
         run: go build -v -o example ./...
 
       - name: Generate Source SBOM Attestation
-        uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
+        uses: actions/attest-sbom@6d7733f629ce1368bd053e269afa8041a98a2b98 # v1
         with:
           subject-path: './src/example'
           sbom-path: 'source.sbom.spdx.json'
@@ -91,7 +91,7 @@ jobs:
         run: cat package.sbom.spdx.json
 
       - name: Generate Package SBOM Attestation
-        uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
+        uses: actions/attest-sbom@6d7733f629ce1368bd053e269afa8041a98a2b98 # v1
         with:
           subject-path: './src/example'
           sbom-path: 'package.sbom.spdx.json'
@@ -178,7 +178,7 @@ jobs:
         run: cat image.sbom.spdx.json
 
       - name: Generate Image SBOM Attestation
-        uses: actions/attest-sbom@3d6693daad97553949201f0913efcba833e58d67 # v1
+        uses: actions/attest-sbom@6d7733f629ce1368bd053e269afa8041a98a2b98 # v1
         with:
           subject-name: ${{ env.REGISTRY }}/${{ github.repository }}/example
           subject-digest: ${{ steps.build-image.outputs.digest }}
